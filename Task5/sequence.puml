@@ -1,0 +1,70 @@
+@startuml SmartHome UML Sequence Diagramm. Service ms_device_adapters
+
+title "SmartHome UML Sequence Diagramm. Service ms_device_adapters. Processing incoming message. Happy path"
+
+actor "User" as user order 1
+participant "WebClient (React, typescript)" as front order 3
+participant "API Client (Any)" as api order 2
+
+participant "API (C# Backend)" as back order 4
+database "Cache [Redis]" as cache order 5
+database "DB" as db order 6
+
+autonumber
+
+group OnOrderStatusChanged
+
+    back ++
+    back -> db: Запрос списка заказов для групп операторов()
+    db++
+    db -> back: Список заказов для групп операторов
+    db-- 
+    
+    back -> cache: Инвалидация текущих данных
+    cache++
+    back -> cache: Загрузка обновленных данных
+    cache--
+    back --
+end
+
+== nc ==
+
+group User Interaction
+user++ 
+user -> front: Обновить список заказов
+front++
+front -> back: Обновить список заказов
+back++
+back -> cache: Запрос списка заказов для группы
+cache++
+cache -> back: Запрос списка заказов для группы
+cache--
+back -> front: Список заказов для группы
+back--
+front -> user: Список заказов для группы
+front--
+user--
+end
+
+
+== nc ==
+
+group API Interaction
+api++ 
+api -> back: Обновить список заказов
+back++
+back -> cache: Запрос списка заказов для группы
+cache++
+cache -> back: Запрос списка заказов для группы
+cache--
+back -> api: Список заказов для группы
+back--
+api--
+end
+
+
+
+
+
+@enduml
+
